@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFoxBe", "TestFoxBe\TestFoxBe.csproj", "{64CD4A75-36E7-49BB-A1D6-557BAA437A91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{76B2B34F-445A-43C9-85BF-36C9CDC51FD7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{64CD4A75-36E7-49BB-A1D6-557BAA437A91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64CD4A75-36E7-49BB-A1D6-557BAA437A91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64CD4A75-36E7-49BB-A1D6-557BAA437A91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76B2B34F-445A-43C9-85BF-36C9CDC51FD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76B2B34F-445A-43C9-85BF-36C9CDC51FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76B2B34F-445A-43C9-85BF-36C9CDC51FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76B2B34F-445A-43C9-85BF-36C9CDC51FD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
