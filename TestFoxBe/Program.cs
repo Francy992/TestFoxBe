@@ -16,7 +16,6 @@ builder.Services.SetCorsPolicy(corsPolicyName);
 
 // Add services
 builder.Services.AddScoped<IAccomodationRepository, AccomodationRepository>();
-builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
 builder.Services.AddScoped<IPriceListRepository, PriceListRepository>();
 builder.Services.AddScoped<IUnitOfWorkApi, UnitOfWorkApi>();

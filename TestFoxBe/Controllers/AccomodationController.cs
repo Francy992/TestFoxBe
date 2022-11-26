@@ -36,6 +36,21 @@ public class AccomodationController : ControllerBase
     }
 
     /// <summary>
+    /// Get all accomodations
+    /// </summary>
+    /// <returns>Element</returns>
+    [HttpGet("", Name = "ACC-05")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(List<AccomodationDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAccomodationList()
+    {
+        var priceList = await _unitOfWork.AccomodationRepository.FindAll();
+        return priceList == null ? NotFound() : Ok(priceList.Adapt<List<AccomodationDto>>());
+    }
+
+    /// <summary>
     /// Add new accomodation
     /// </summary>
     /// <returns>Element</returns>
@@ -87,9 +102,7 @@ public class AccomodationController : ControllerBase
         var accomodationToDelete = await _unitOfWork.AccomodationRepository.GetById(id);
         if(accomodationToDelete == null)
             return NotFound();
-        var rooms = await _unitOfWork.RoomRepository.FindByAccommodationIdAsync(id);
-        // Delete Rooms connected with accomodation
-        _unitOfWork.RoomRepository.DeleteRange(rooms);
+        
         // Delete Accomodation
         _unitOfWork.AccomodationRepository.Delete(accomodationToDelete);
         await _unitOfWork.SaveChanges();

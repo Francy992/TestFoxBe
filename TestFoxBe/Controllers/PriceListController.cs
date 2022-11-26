@@ -8,7 +8,7 @@ using TestFoxBe.Dtos;
 namespace TestFoxBe.Controllers;
 
 [ApiController]
-[Route("api/v1/roomtypes")]
+[Route("api/v1/price")]
 [Produces("application/json")]
 [ApiExplorerSettings(GroupName = "Price List API")]
 public class PriceListController : ControllerBase
@@ -24,91 +24,167 @@ public class PriceListController : ControllerBase
     /// Get details of one price list
     /// </summary>
     /// <returns>Element</returns>
-    [HttpGet("{roomTypeId:required:long}/price/{priceListId:required:long}", Name = "PRL-01")]
+    [HttpGet("{priceListId:required:long}", Name = "PRL-01")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(RoomTypeBaseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PriceListDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetRoom(long roomTypeId, long priceListId)
+    public async Task<IActionResult> GetPriceListById(long priceListId)
     {
         var priceList = await _unitOfWork.PriceListRepository.GetById(priceListId);
-        return priceList == null || priceList.RoomTypeId != roomTypeId ? NotFound() : Ok(priceList.Adapt<PriceListDto>());
+        return priceList == null ? NotFound() : Ok(priceList.Adapt<PriceListDto>());
+    }
+
+
+    /// <summary>
+    /// Get all price list
+    /// </summary>
+    /// <returns>Element</returns>
+    [HttpGet("", Name = "PRL-05")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(List<PriceListDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPriceList()
+    {
+        var priceList = await _unitOfWork.PriceListRepository.FindAll();
+        return priceList == null ? NotFound() : Ok(priceList.Adapt<List<PriceListDto>>());
     }
 
     /// <summary>
     /// Add new price for date
     /// </summary>
     /// <returns>Element</returns>
-    [HttpPost("{roomTypeId:required:long}/price", Name = "PRL-02")]
+    [HttpPost("", Name = "PRL-02")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(RoomTypeBaseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PriceListDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddRoomType([FromBody] RoomTypeAddOrUpdDto room)
+    public async Task<IActionResult> AddRoomType([FromBody] PriceListAddOrUpdateDto price)
     {
-        var roomTypeToAdd = room.Adapt<RoomType>();
-        await _unitOfWork.RoomTypeRepository.Insert(roomTypeToAdd);
+        if(price.Price is <= 0 or > 1000)
+            return BadRequest("Price must be between 1 and 1000");
+        
+        var roomType = await _unitOfWork.RoomTypeRepository.GetById(price.RoomTypeId);
+        if (roomType == null)
+            return NotFound();
+        
+        var canUpdate = await CanInsertPriceForCurrentRoomTypeAndDate(price, roomType);
+        if (!canUpdate)
+            return BadRequest("Price must be higher than price of room type increment");
+        
+        var priceListToAdd = price.Adapt<PriceList>();
+        priceListToAdd.Date = priceListToAdd.Date.Date;
+        await _unitOfWork.PriceListRepository.Insert(priceListToAdd);
+        await UpdateOtherPriceListConnectedWithCurrentRoomType(priceListToAdd);
         await _unitOfWork.SaveChanges();
         
-        return Ok(roomTypeToAdd.Adapt<RoomTypeBaseDto>());
+        return Ok(priceListToAdd.Adapt<PriceListDto>());
     }
-    
+
     /// <summary>
-    /// Update details of one room type
+    /// Update price list
     /// </summary>
     /// <returns>Element</returns>
-    [HttpPut("{id:required:long}", Name = "RMT-03")]
+    [HttpPut("{priceListId:required:long}", Name = "PRL-03")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateRoomType(long id, [FromBody] RoomTypeAddOrUpdDto room)
+    public async Task<IActionResult> UpdateRoomType(long priceListId, [FromBody] PriceListAddOrUpdateDto room)
     {
-        var roomTypeToUpdate = await _unitOfWork.RoomTypeRepository.GetById(id);
-        if (roomTypeToUpdate == null) 
+        if(room.Price is <= 0 or > 1000)
+            return BadRequest("Price must be between 1 and 1000");
+        
+        var roomType = await _unitOfWork.RoomTypeRepository.GetById(room.RoomTypeId);
+        if (roomType == null)
             return NotFound();
         
-        roomTypeToUpdate.Name = room.Name;
-        _unitOfWork.RoomTypeRepository.Update(roomTypeToUpdate);
+        var priceListToUpd = await _unitOfWork.PriceListRepository.GetById(priceListId);
+        if (priceListToUpd == null)
+            return NotFound();
+        
+        var canUpdate = await CanInsertPriceForCurrentRoomTypeAndDate(room, roomType);
+        if (!canUpdate)
+            return BadRequest("Price must be higher than price of room type increment");
+        
+        priceListToUpd.Price = room.Price;
+        priceListToUpd.Date = room.Date.Date;
+        priceListToUpd.RoomTypeId = room.RoomTypeId;
+        _unitOfWork.PriceListRepository.Update(priceListToUpd);
+        await UpdateOtherPriceListConnectedWithCurrentRoomType(priceListToUpd);
         await _unitOfWork.SaveChanges();
         
-        return Ok(roomTypeToUpdate.Adapt<RoomTypeBaseDto>());
+        return Ok();
     }
     
     /// <summary>
     /// Delete room type
     /// </summary>
     /// <returns>Element</returns>
-    [HttpDelete("{id:required:long}", Name = "RMT-04")]
+    [HttpDelete("{priceListId:required:long}", Name = "PRL-04")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> DeleteRoomType(long id)
+    public async Task<IActionResult> DeletePriceList(long priceListId)
     {
-        var roomToDelete = await _unitOfWork.RoomTypeRepository.GetById(id);
-        if(roomToDelete == null) return NotFound();
-        
-        var existsPriceList = await _unitOfWork.PriceListRepository.ExistsByRoomTypeIdAsync(id);
-        if(existsPriceList) return BadRequest(new ErrorDto() { Message = "Operation not allowed. Remove price list with current roomType" });
-        
-        var existsRoom = await _unitOfWork.RoomRepository.ExistsByRoomTypeIdAsync(id);
-        if(existsRoom) return BadRequest(new ErrorDto() { Message = "Operation not allowed. Remove room with current roomType" });
-        
-        // Delete Room
-        _unitOfWork.RoomTypeRepository.Delete(roomToDelete);
+        var priceList = await _unitOfWork.PriceListRepository.GetById(priceListId);
+        if (priceList == null)
+            return NotFound();
+        _unitOfWork.PriceListRepository.Delete(priceList);
         await _unitOfWork.SaveChanges();
-        
         return Ok();
     }
 
     #region SupportMethods
-    private RoomDto GetRoomDto(Room room, Accomodation accomodation, RoomType roomType)
+    private async Task<bool> CanInsertPriceForCurrentRoomTypeAndDate(PriceListAddOrUpdateDto price, RoomType roomType)
     {
-        var result = room.Adapt<RoomDto>();
-        result.Accomodation = accomodation.Adapt<AccomodationDto>();
-        result.RoomType = roomType.Adapt<RoomTypeBaseDto>();
-        return result;
+        if (roomType.RoomTypeIncrementId.HasValue)
+        {
+            // Check if I can create price list for this room type
+            var priceLists = await _unitOfWork.PriceListRepository.GetByRoomTypeAndDateAsync(roomType.RoomTypeIncrementId.Value, price.Date);
+            foreach (var priceList in priceLists)
+            {
+                if (price.Price < priceList.Price + (priceList.Price * roomType.PriceIncrementPercentage.Value / 100))
+                    return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /// <summary>
+    /// Check, if there are other price list connected with current room type and update them
+    /// For do this, I check if there are other room type connected with current room type and I update their price list
+    /// I use queue to simulate recursion
+    /// </summary>
+    /// <param name="priceListToAdd"></param>
+    private async Task UpdateOtherPriceListConnectedWithCurrentRoomType(PriceList priceListToAdd)
+    {
+        var roomTypeQueue = new Queue<long>();
+        roomTypeQueue.Enqueue(priceListToAdd.RoomTypeId);
+        do
+        {
+            var currentRoomTypeId = roomTypeQueue.Dequeue();
+            var roomTypeToCheck = await _unitOfWork.RoomTypeRepository.FindByRoomTypeIncrementIdAsync(currentRoomTypeId);
+            foreach(var roomTypeToCheckIncrement in roomTypeToCheck)
+            {
+                var priceListToCheckIncrement = await _unitOfWork.PriceListRepository.GetByRoomTypeAndDateAsync(roomTypeToCheckIncrement.Id, priceListToAdd.Date);
+                foreach(var priceListToIncrement in priceListToCheckIncrement)
+                {
+                    var minPrice = priceListToAdd.Price + (priceListToAdd.Price * roomTypeToCheckIncrement.PriceIncrementPercentage!.Value / 100);
+                    if (priceListToIncrement.Price < minPrice)
+                    {
+                        priceListToIncrement.Price = minPrice;
+                        _unitOfWork.PriceListRepository.Update(priceListToIncrement);
+                        if(!roomTypeQueue.Contains(priceListToIncrement.RoomTypeId))
+                            roomTypeQueue.Enqueue(priceListToIncrement.RoomTypeId);
+                    }
+                }
+            }
+        }
+        while(roomTypeQueue.Count > 0);
     }
     #endregion
 }
