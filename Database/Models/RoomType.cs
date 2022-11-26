@@ -21,5 +21,5 @@ public class RoomType : IEntityId<long>
     public decimal? PriceIncrementPercentage { get; set; }
     
     // Navigation properties
-    public RoomType? RoomTypeIncrement { get; set; }
+    public virtual RoomType? RoomTypeIncrement { get; set; }
 }

@@ -24,6 +24,6 @@ public class Room : IEntityId<long>
     public long RoomTypeId { get; set; }
     
     // Navigation properties
-    public Accomodation Accomodation { get; set; }
-    public RoomType RoomType { get; set; }
+    public virtual Accomodation Accomodation { get; set; }
+    public virtual RoomType RoomType { get; set; }
 }

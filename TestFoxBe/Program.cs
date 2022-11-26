@@ -1,5 +1,8 @@
 using Database.Core;
+using Database.Repositories;
 using Microsoft.EntityFrameworkCore;
+using TestFoxBe.Extensions;
+using TestFoxBe.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,28 +10,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DbContextAccomodations>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// cors
+const string corsPolicyName = "AllowAll";
+builder.Services.SetCorsPolicy(corsPolicyName);
+
+// Add services
+builder.Services.AddScoped<IAccomodationRepository, AccomodationRepository>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+builder.Services.AddScoped<IRoomTypeRepository, RoomTypeRepository>();
+builder.Services.AddScoped<IPriceListRepository, PriceListRepository>();
+builder.Services.AddScoped<IUnitOfWorkApi, UnitOfWorkApi>();
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.SetSwaggerInfo();
 
 var app = builder.Build();
 
 MigrateDatabase(app);
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseCors(corsPolicyName);
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.MapControllers();
-
 app.Run();
 
 static void MigrateDatabase(IHost host)
@@ -40,6 +47,7 @@ static void MigrateDatabase(IHost host)
     {
         var context = services.GetRequiredService<DbContextAccomodations>();
         context.Database.Migrate();
+        // TODO: add initial data if not exists
     }
     catch (Exception ex)
     {

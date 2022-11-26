@@ -7,4 +7,5 @@ public interface IRepository<T, TKey> where T : class, IEntityId<TKey>
     Task Insert(T item);
     void Update(T item);
     void Delete(T item);
+    void DeleteRange(IEnumerable<T> items);
 }

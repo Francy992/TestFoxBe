@@ -43,8 +43,6 @@ public class Repository<T, TKey> : IRepository<T, TKey> where T : class, IEntity
         DbSet.Update(item);
     }
     
-    
-
     public void Delete(T item)
     {
         if (item == null)
@@ -53,4 +51,11 @@ public class Repository<T, TKey> : IRepository<T, TKey> where T : class, IEntity
         DbSet.Remove(item);
     }
 
+    public void DeleteRange(IEnumerable<T> items)
+    {
+        if (items == null)
+            return;
+        
+        DbSet.RemoveRange(items);
+    }
 }

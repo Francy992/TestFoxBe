@@ -23,5 +23,5 @@ public class PriceList : IEntityId<long>
     public decimal Price { get; set; }
     
     // Navigation properties
-    public RoomType? RoomTypeIncrement { get; set; }
+    public virtual RoomType RoomType { get; set; }
 }
