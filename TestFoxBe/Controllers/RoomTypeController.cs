@@ -117,10 +117,10 @@ public class RoomTypeController : ControllerBase
         roomTypeToUpdate.PriceIncrementPercentage = room.PriceIncrementPercentage;
         roomTypeToUpdate.RoomTypeIncrementId = room.RoomTypeIncrementId;
         _unitOfWork.RoomTypeRepository.Update(roomTypeToUpdate);
-        
-        if(room.RoomTypeIncrementId.HasValue)
-            _notifierMediatorService.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto { RoomTypeId = roomTypeToUpdate.RoomTypeIncrementId.Value });
         await _unitOfWork.SaveChanges();
+
+        if(room.RoomTypeIncrementId.HasValue)
+            await _notifierMediatorService.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto { RoomTypeId = roomTypeToUpdate.RoomTypeIncrementId.Value });
         
         return Ok();
     }

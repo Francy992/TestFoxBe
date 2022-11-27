@@ -17,5 +17,5 @@ public class UpdatePriceConnectedRoomTypeDto
 {
     public long RoomTypeId { get; set; }
     public decimal Price { get; set; }
-    public DateTime Date { get; set; }
+    public DateTime? Date { get; set; }
 }

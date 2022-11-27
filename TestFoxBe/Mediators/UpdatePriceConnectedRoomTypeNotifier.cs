@@ -46,14 +46,17 @@ public class UpdatePriceConnectedRoomTypeNotifier : INotificationHandler<Notific
             var currentRoomTypeId = roomTypeQueue.Dequeue();
             // Find the room type that have "RoomTypeIncrementId" equal to "currentRoomTypeId"
             var roomTypeToCheck = await _unitOfWork.RoomTypeRepository.FindByRoomTypeIncrementIdAsync(currentRoomTypeId);
+            // Find max price list connected with current room type. This price list will be used to update other price list connected with current room type
+            var referencePrice = await _unitOfWork.PriceListRepository.GetMaxPriceByRoomTypeAndDateAsync(currentRoomTypeId, deserialized.Date);
             foreach(var roomTypeToCheckIncrement in roomTypeToCheck)
             {
                 var priceListToCheckIncrement = await _unitOfWork.PriceListRepository.GetByRoomTypeAndDateAsync(roomTypeToCheckIncrement.Id, deserialized.Date);
                 foreach(var priceListToIncrement in priceListToCheckIncrement)
                 {
-                    var minPrice = deserialized.Price + (deserialized.Price * roomTypeToCheckIncrement.PriceIncrementPercentage!.Value / 100);
+                    var minPrice = referencePrice + (referencePrice * roomTypeToCheckIncrement.PriceIncrementPercentage!.Value / 100);
                     if (priceListToIncrement.Price < minPrice)
                     {
+                        priceListToIncrement.RoomType = null;
                         priceListToIncrement.Price = minPrice;
                         _unitOfWork.PriceListRepository.Update(priceListToIncrement);
                         if(!roomTypeQueue.Contains(priceListToIncrement.RoomTypeId))
@@ -61,6 +64,7 @@ public class UpdatePriceConnectedRoomTypeNotifier : INotificationHandler<Notific
                     }
                 }
             }
+            await _unitOfWork.SaveChanges();
         }
         while(roomTypeQueue.Count > 0);
     }
