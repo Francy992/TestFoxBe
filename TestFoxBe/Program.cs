@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<DbContextAccomodations>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), builder => builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
 
 // cors
 const string corsPolicyName = "AllowAll";

@@ -1,13 +1,17 @@
 version: '3.4'
 
 services:
-  webapplication1:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
+  testfoxbe:
+    image: ${DOCKER_REGISTRY-}testfoxbe
+    build:
+      context: .
+      dockerfile: TestFoxBe/Dockerfile
     ports:
-      - "80"
-      - "443"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - "8080:80"
+  sqldata:
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      - MSSQL_SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
+    ports:
+      - "1434:1433"
