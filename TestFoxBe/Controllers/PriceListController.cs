@@ -4,6 +4,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TestFoxBe.Dtos;
+using TestFoxBe.Mediators;
 
 namespace TestFoxBe.Controllers;
 
@@ -14,10 +15,12 @@ namespace TestFoxBe.Controllers;
 public class PriceListController : ControllerBase
 {
     private readonly IUnitOfWorkApi _unitOfWork;
+    private readonly INotifierMediatorService _mediator;
 
-    public PriceListController(IUnitOfWorkApi unitOfWork)
+    public PriceListController(IUnitOfWorkApi unitOfWork, INotifierMediatorService mediator)
     {
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -76,7 +79,8 @@ public class PriceListController : ControllerBase
         var priceListToAdd = price.Adapt<PriceList>();
         priceListToAdd.Date = priceListToAdd.Date.Date;
         await _unitOfWork.PriceListRepository.Insert(priceListToAdd);
-        await UpdateOtherPriceListConnectedWithCurrentRoomType(priceListToAdd);
+        await _mediator.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto() { RoomTypeId = roomType.Id, Price = price.Price, Date = priceListToAdd.Date});
+        // await UpdateOtherPriceListConnectedWithCurrentRoomType(priceListToAdd);
         await _unitOfWork.SaveChanges();
         
         return Ok(priceListToAdd.Adapt<PriceListDto>());
@@ -91,12 +95,12 @@ public class PriceListController : ControllerBase
     [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateRoomType(long priceListId, [FromBody] PriceListAddOrUpdateDto room)
+    public async Task<IActionResult> UpdateRoomType(long priceListId, [FromBody] PriceListAddOrUpdateDto price)
     {
-        if(room.Price is <= 0 or > 1000)
+        if(price.Price is <= 0 or > 1000)
             return BadRequest("Price must be between 1 and 1000");
         
-        var roomType = await _unitOfWork.RoomTypeRepository.GetById(room.RoomTypeId);
+        var roomType = await _unitOfWork.RoomTypeRepository.GetById(price.RoomTypeId);
         if (roomType == null)
             return NotFound();
         
@@ -104,15 +108,16 @@ public class PriceListController : ControllerBase
         if (priceListToUpd == null)
             return NotFound();
         
-        var canUpdate = await CanInsertPriceForCurrentRoomTypeAndDate(room, roomType);
+        var canUpdate = await CanInsertPriceForCurrentRoomTypeAndDate(price, roomType);
         if (!canUpdate)
             return BadRequest("Price must be higher than price of room type increment");
         
-        priceListToUpd.Price = room.Price;
-        priceListToUpd.Date = room.Date.Date;
-        priceListToUpd.RoomTypeId = room.RoomTypeId;
+        priceListToUpd.Price = price.Price;
+        priceListToUpd.Date = price.Date.Date;
+        priceListToUpd.RoomTypeId = price.RoomTypeId;
         _unitOfWork.PriceListRepository.Update(priceListToUpd);
-        await UpdateOtherPriceListConnectedWithCurrentRoomType(priceListToUpd);
+
+        await _mediator.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto() { RoomTypeId = roomType.Id, Price = price.Price, Date = priceListToUpd.Date});
         await _unitOfWork.SaveChanges();
         
         return Ok();

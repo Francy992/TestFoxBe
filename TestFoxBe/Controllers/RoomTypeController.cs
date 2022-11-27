@@ -4,6 +4,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TestFoxBe.Dtos;
+using TestFoxBe.Mediators;
 
 namespace TestFoxBe.Controllers;
 
@@ -14,10 +15,12 @@ namespace TestFoxBe.Controllers;
 public class RoomTypeController : ControllerBase
 {
     private readonly IUnitOfWorkApi _unitOfWork;
+    private readonly INotifierMediatorService _notifierMediatorService;
 
-    public RoomTypeController(IUnitOfWorkApi unitOfWork)
+    public RoomTypeController(IUnitOfWorkApi unitOfWork, INotifierMediatorService notifierMediatorService)
     {
         _unitOfWork = unitOfWork;
+        _notifierMediatorService = notifierMediatorService;
     }
 
     /// <summary>
@@ -110,16 +113,13 @@ public class RoomTypeController : ControllerBase
         if (roomTypeToUpdate == null) 
             return NotFound();
         
-        var oldPriceIncrement = roomTypeToUpdate.RoomTypeIncrement;
-        var oldRoomTypeIncrementId = roomTypeToUpdate.RoomTypeIncrementId;
-        
         roomTypeToUpdate.Name = room.Name;
         roomTypeToUpdate.PriceIncrementPercentage = room.PriceIncrementPercentage;
         roomTypeToUpdate.RoomTypeIncrementId = room.RoomTypeIncrementId;
         _unitOfWork.RoomTypeRepository.Update(roomTypeToUpdate);
         
-        // TODO: check that all price of room of this type are updated
-
+        if(room.RoomTypeIncrementId.HasValue)
+            _notifierMediatorService.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto { RoomTypeId = roomTypeToUpdate.RoomTypeIncrementId.Value });
         await _unitOfWork.SaveChanges();
         
         return Ok();

@@ -12,7 +12,6 @@ public class DbContextAccomodations: DbContext
     }
 
     public DbSet<Accomodation> Accomodations { get; set; }
-    public DbSet<Room> Rooms { get; set; }
     public DbSet<RoomType> RoomTypes { get; set; }
     public DbSet<PriceList> PriceLists { get; set; }
 

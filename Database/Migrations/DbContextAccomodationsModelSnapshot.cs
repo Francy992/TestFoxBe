@@ -67,33 +67,6 @@ namespace Database.Migrations
                     b.ToTable("PriceLists");
                 });
 
-            modelBuilder.Entity("Database.Models.Room", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AccomodationId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("RoomTypeId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccomodationId");
-
-                    b.HasIndex("RoomTypeId");
-
-                    b.ToTable("Rooms");
-                });
-
             modelBuilder.Entity("Database.Models.RoomType", b =>
                 {
                     b.Property<long>("Id")
@@ -121,30 +94,11 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Database.Models.PriceList", b =>
                 {
-                    b.HasOne("Database.Models.RoomType", "RoomTypeIncrement")
-                        .WithMany()
-                        .HasForeignKey("RoomTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RoomTypeIncrement");
-                });
-
-            modelBuilder.Entity("Database.Models.Room", b =>
-                {
-                    b.HasOne("Database.Models.Accomodation", "Accomodation")
-                        .WithMany()
-                        .HasForeignKey("AccomodationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Database.Models.RoomType", "RoomType")
                         .WithMany()
                         .HasForeignKey("RoomTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Accomodation");
 
                     b.Navigation("RoomType");
                 });
