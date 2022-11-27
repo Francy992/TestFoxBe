@@ -69,11 +69,11 @@ public class RoomTypeController : ControllerBase
         {
             roomTypeToIncrement = await _unitOfWork.RoomTypeRepository.GetById(room.RoomTypeIncrementId.Value);
             if(roomTypeToIncrement == null)
-                return BadRequest(new ErrorDto() { Message = "Room Type not found" });
+                return BadRequest("Room Type not found");
         }
         
         if(room.RoomTypeIncrementId.HasValue && !room.PriceIncrementPercentage.HasValue)
-            return BadRequest(new ErrorDto() { Message = "Increment percentage needed if exist room type increment id." });
+            return BadRequest("Increment percentage needed if exist room type increment id.");
 
         var roomTypeToAdd = room.Adapt<RoomType>();
         await _unitOfWork.RoomTypeRepository.Insert(roomTypeToAdd);
@@ -95,24 +95,24 @@ public class RoomTypeController : ControllerBase
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateRoomType(long id, [FromBody] RoomTypeAddOrUpdDto room)
     {
+        var roomTypeToUpdate = await _unitOfWork.RoomTypeRepository.GetById(id);
+        if (roomTypeToUpdate == null) 
+            return NotFound();
+        
         RoomType roomTypeToIncrement = null;
         if (room.RoomTypeIncrementId.HasValue)
         {
             roomTypeToIncrement = await _unitOfWork.RoomTypeRepository.GetById(room.RoomTypeIncrementId.Value);
             if(roomTypeToIncrement == null)
-                return BadRequest(new ErrorDto() { Message = "Room Type not found" });
+                return BadRequest("Room Type not found");
         }
         
         if(room.RoomTypeIncrementId.HasValue && !room.PriceIncrementPercentage.HasValue)
-            return BadRequest(new ErrorDto() { Message = "Increment percentage needed if exist room type increment id." });
+            return BadRequest("Increment percentage needed if exist room type increment id.");
         
         if(room.RoomTypeIncrementId.HasValue && room.RoomTypeIncrementId.Value == id)
-            return BadRequest(new ErrorDto() { Message = "Room type increment id can't be the same as room type id." });
-        
-        var roomTypeToUpdate = await _unitOfWork.RoomTypeRepository.GetById(id);
-        if (roomTypeToUpdate == null) 
-            return NotFound();
-        
+            return BadRequest("Room type increment id can't be the same as room type id.");
+
         roomTypeToUpdate.Name = room.Name;
         roomTypeToUpdate.PriceIncrementPercentage = room.PriceIncrementPercentage;
         roomTypeToUpdate.RoomTypeIncrementId = room.RoomTypeIncrementId;
@@ -140,10 +140,10 @@ public class RoomTypeController : ControllerBase
         if(roomToDelete == null) return NotFound();
         
         var existsPriceList = await _unitOfWork.PriceListRepository.ExistsByRoomTypeIdAsync(id);
-        if(existsPriceList) return BadRequest(new ErrorDto() { Message = "Operation not allowed. Remove price list with current roomType" });
+        if(existsPriceList) return BadRequest("Operation not allowed. Remove price list with current roomType");
         
         var existsRoomTypeConnected = await _unitOfWork.RoomTypeRepository.ExistsByRoomTypeIdAsync(id);
-        if(existsRoomTypeConnected) return BadRequest(new ErrorDto() { Message = "Operation not allowed. Remove room type connected to current" });
+        if(existsRoomTypeConnected) return BadRequest("Operation not allowed. Remove room type connected to current");
         
         // Delete RoomType
         _unitOfWork.RoomTypeRepository.Delete(roomToDelete);

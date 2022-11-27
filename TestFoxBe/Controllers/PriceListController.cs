@@ -63,10 +63,10 @@ public class PriceListController : ControllerBase
     [ProducesResponseType(typeof(PriceListDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> AddRoomType([FromBody] PriceListAddOrUpdateDto price)
+    public async Task<IActionResult> AddPriceList([FromBody] PriceListAddOrUpdateDto price)
     {
-        if(price.Price is <= 0 or > 1000)
-            return BadRequest("Price must be between 1 and 1000");
+        if(price.Price is <= 0)
+            return BadRequest("Price must be higher than 0");
         
         var roomType = await _unitOfWork.RoomTypeRepository.GetById(price.RoomTypeId);
         if (roomType == null)
