@@ -1,0 +1,25 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e3bdd7b3_002D8970_002D4ffc_002D9951_002D6a54e9d03cf1/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AccomodationControllerTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;Or&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.AccomodationControllerTest&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.AddElement_Ko_RoomTypeNotFound&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.AddElement_Ko_RoomTypeIncrementPercentageNotFound&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.AddElement_Ok&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.UpdateElement_Ok&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.UpdateElement_Ko_RoomTypeIncrementIdSameOfCurrentId&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.UpdateElement_Ko_RoomTypeIncrementPercentageNotFound&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.UpdateElement_Ko_RoomTypeNotFound&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.UpdateElement_Ok_WhitoutNotifier&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.DeleteRoomTypeById_Ko_PriceListConnectedToCurrentRoomType&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.DeleteRoomTypeById_Ko_RoomTypeConnectedToCurrentRoomType&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.DeleteRoomTypeById_Ok&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.DeleteRoomTypeById_Ko_IdNotFound&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest.GetRoomTypeById_Ok&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.RoomTypeControllerTest&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.PriceListControllerTest.AddElement_Ko_CantInsertForMinimumPrice&lt;/TestId&gt;
+      &lt;TestId&gt;xUnit::E1E25AF4-3CC2-4AB4-A3F4-889AA322852A::net6.0::UnitTest.PriceListControllerTest.AddElement_Ok&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
+    &lt;ProjectFile&gt;E1E25AF4-3CC2-4AB4-A3F4-889AA322852A/f:PriceListControllerTest.cs&lt;/ProjectFile&gt;
+  &lt;/Or&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
