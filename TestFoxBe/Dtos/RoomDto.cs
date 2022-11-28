@@ -17,7 +17,7 @@ public class RoomTypeBaseDto
 
 public class RoomTypeDto : RoomTypeBaseDto
 {
-    public RoomTypeBaseDto? RoomTypeIncrement { get; set; }
+    public RoomTypeBaseDto RoomTypeIncrement { get; set; }
     public decimal? PriceIncrementPercentage { get; set; }
 }
 

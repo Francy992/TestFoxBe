@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Database.Core;
 using Database.Repositories;
@@ -12,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<DbContextAccomodations>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), builder => builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // cors
 const string corsPolicyName = "AllowAll";
@@ -44,11 +45,13 @@ app.UseMiddleware<ErrorHandlerMiddleware>();
 app.MapControllers();
 app.Run();
 
+[ExcludeFromCodeCoverage]
 static void MigrateDatabase(IHost host)
 {
     using var scope = host.Services.CreateScope();
     var services = scope.ServiceProvider;
 
+    Task.Delay(20000).Wait();
     try
     {
         var context = services.GetRequiredService<DbContextAccomodations>();
@@ -83,3 +86,7 @@ static void MigrateDatabase(IHost host)
         logger.LogError(ex, "An error occurred creating the DB.");
     }
 }
+
+
+[ExcludeFromCodeCoverage]
+public partial class Program { }

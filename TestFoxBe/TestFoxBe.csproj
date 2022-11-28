@@ -2,14 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
-    
-    <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    </PropertyGroup>
+<!--    -->
+<!--    <PropertyGroup>-->
+<!--        <GenerateDocumentationFile>true</GenerateDocumentationFile>-->
+<!--    </PropertyGroup>-->
     
     <ItemGroup>
         <PackageReference Include="Mapster" Version="7.4.0-pre03" />

@@ -1,6 +1,14 @@
 version: '3.4'
 
 services:
+  sqldata:
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      - MSSQL_SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
+    ports:
+      - "1434:1433"  
+  
   testfoxbe:
     image: ${DOCKER_REGISTRY-}testfoxbe
     build:
@@ -8,10 +16,5 @@ services:
       dockerfile: TestFoxBe/Dockerfile
     ports:
       - "8080:80"
-  sqldata:
-    image: mcr.microsoft.com/azure-sql-edge
-    environment:
-      - MSSQL_SA_PASSWORD=Pass@word
-      - ACCEPT_EULA=Y
-    ports:
-      - "1434:1433"
+    depends_on:
+     - sqldata  

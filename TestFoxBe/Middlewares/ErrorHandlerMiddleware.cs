@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Newtonsoft.Json;
 using TestFoxBe.Dtos;
 
 namespace TestFoxBe.Middlewares;
 
+[ExcludeFromCodeCoverage]
 public class ErrorHandlerMiddleware
 {
     private readonly RequestDelegate _next;

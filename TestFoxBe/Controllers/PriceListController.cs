@@ -80,7 +80,7 @@ public class PriceListController : ControllerBase
         priceListToAdd.Date = priceListToAdd.Date.Date;
         await _unitOfWork.PriceListRepository.Insert(priceListToAdd);
         await _unitOfWork.SaveChanges();
-        await _mediator.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto() { RoomTypeId = roomType.Id, Price = price.Price, Date = priceListToAdd.Date});
+        await _mediator.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto() { RoomTypeId = roomType.Id, Date = priceListToAdd.Date});
 
         
         return Ok(priceListToAdd.Adapt<PriceListDto>());
@@ -95,7 +95,7 @@ public class PriceListController : ControllerBase
     [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(NotFoundResult), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BadRequestResult), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateRoomType(long priceListId, [FromBody] PriceListAddOrUpdateDto price)
+    public async Task<IActionResult> UpdatePriceList(long priceListId, [FromBody] PriceListAddOrUpdateDto price)
     {
         if(price.Price is <= 0)
             return BadRequest("Price must be higher than 0");
@@ -118,7 +118,7 @@ public class PriceListController : ControllerBase
         _unitOfWork.PriceListRepository.Update(priceListToUpd);
         await _unitOfWork.SaveChanges();
 
-        await _mediator.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto() { RoomTypeId = roomType.Id, Price = price.Price, Date = priceListToUpd.Date});
+        await _mediator.Notify(NotificationTypeEnum.UpdatePriceConnectedRoomType, new UpdatePriceConnectedRoomTypeDto() { RoomTypeId = roomType.Id, Date = priceListToUpd.Date});
         
         return Ok();
     }
@@ -157,39 +157,6 @@ public class PriceListController : ControllerBase
         }
         
         return true;
-    }
-
-    /// <summary>
-    /// Check, if there are other price list connected with current room type and update them
-    /// For do this, I check if there are other room type connected with current room type and I update their price list
-    /// I use queue to simulate recursion
-    /// </summary>
-    /// <param name="priceListToAdd"></param>
-    private async Task UpdateOtherPriceListConnectedWithCurrentRoomType(PriceList priceListToAdd)
-    {
-        var roomTypeQueue = new Queue<long>();
-        roomTypeQueue.Enqueue(priceListToAdd.RoomTypeId);
-        do
-        {
-            var currentRoomTypeId = roomTypeQueue.Dequeue();
-            var roomTypeToCheck = await _unitOfWork.RoomTypeRepository.FindByRoomTypeIncrementIdAsync(currentRoomTypeId);
-            foreach(var roomTypeToCheckIncrement in roomTypeToCheck)
-            {
-                var priceListToCheckIncrement = await _unitOfWork.PriceListRepository.GetByRoomTypeAndDateAsync(roomTypeToCheckIncrement.Id, priceListToAdd.Date);
-                foreach(var priceListToIncrement in priceListToCheckIncrement)
-                {
-                    var minPrice = priceListToAdd.Price + (priceListToAdd.Price * roomTypeToCheckIncrement.PriceIncrementPercentage!.Value / 100);
-                    if (priceListToIncrement.Price < minPrice)
-                    {
-                        priceListToIncrement.Price = minPrice;
-                        _unitOfWork.PriceListRepository.Update(priceListToIncrement);
-                        if(!roomTypeQueue.Contains(priceListToIncrement.RoomTypeId))
-                            roomTypeQueue.Enqueue(priceListToIncrement.RoomTypeId);
-                    }
-                }
-            }
-        }
-        while(roomTypeQueue.Count > 0);
     }
     #endregion
 }

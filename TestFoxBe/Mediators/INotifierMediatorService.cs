@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using MediatR;
 using Newtonsoft.Json;
 
@@ -7,7 +8,7 @@ public interface INotifierMediatorService
 {
     Task Notify(NotificationTypeEnum notificationTypeEnum, object obj);
 }
-
+[ExcludeFromCodeCoverage]
 public class NotifierMediatorService : INotifierMediatorService
 {
     private readonly IMediator _mediator;

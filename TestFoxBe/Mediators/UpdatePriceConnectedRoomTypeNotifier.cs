@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Database.Core;
 using MediatR;
 using Newtonsoft.Json;
 
 namespace TestFoxBe.Mediators;
 
+[ExcludeFromCodeCoverage]
 public class UpdatePriceConnectedRoomTypeNotifier : INotificationHandler<NotificationMessage>
 {
     private readonly IUnitOfWorkApi _unitOfWork;
