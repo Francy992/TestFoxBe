@@ -23,8 +23,9 @@ public static class ServiceCollectionExtensions
                     Email = "francesco.anastasio.92@gmail.com",
                 }
             }); 
-            var xmlFile = $"{Assembly.GetEntryAssembly()!.GetName().Name}.xml";
-            c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
+            var xmlFile = $"{Assembly.GetEntryAssembly().GetName().Name}.xml";
+            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+            c.IncludeXmlComments(xmlPath);
             c.DocInclusionPredicate((_, api) => !string.IsNullOrWhiteSpace(api.GroupName));
             c.TagActionsBy(api => new List<string> {api.GroupName});
             c.OrderActionsBy(x => x.GroupName);
